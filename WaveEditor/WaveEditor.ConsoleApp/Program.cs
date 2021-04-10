@@ -1,6 +1,4 @@
 ﻿using System;
-using System.IO;
-using System.Text;
 using WaveEditor.Resize.Lib;
 
 namespace WaveEditor.ConsoleApp
@@ -10,10 +8,12 @@ namespace WaveEditor.ConsoleApp
         static void Main(string[] args)
         {
             Console.WriteLine("Hello World!");
-            string input = @"../../../../Audio/eightGrade.wav";
-            string output = @"";
-            ReadWriteBinary s = new ReadWriteBinary(input, output);
+            string input = @"../../../../Audio/5.wav";
+            string output = @"../../../../Audio/6.wav";
+            AudioProcessor a1 = new AudioProcessor();
+            ReadWriteBinary s = new ReadWriteBinary(a1, input, output);
             s.Read();
+            a1.Write();
         }
     }
 }
