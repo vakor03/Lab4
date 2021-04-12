@@ -5,61 +5,92 @@ namespace WaveEditor.Resize.Lib
 {
     public class AudioProcessor
     {
-        // RIFFHEADER
-        private Int32 _chunkID;
-        private Int32 _chunkSize;
-        private Int32 _format;
-                
-        //SUBCHUNK1 
-        private Int32 _subchunk1Id;
-        private Int32 _subchunk1Size;
-        private Int32 _audioFormat;
         private Int16 _numChannels;
-        private Int32 _sampleRate;
-        private Int32 _byteRate;
-        private Int16 _blockAlign;
-        private Int16 _bitsPerSample;
-                
-        //SUBCHUNK2
-        private Int32 _subchunk2Id;
-        private Int32 _subchunk2Size;
+        private int _bytePerSample;
         private byte[] _data;
+        private int _scale;
+        private byte[][] channels;
+        private byte[][] changedCh;
 
-        public void addRiffHeader(int chunkId, int chunkSize, int format)
+        public AudioProcessor(short numChannels, short bitsPerSample, byte[] data, int scale)
         {
-            _chunkID = chunkId;
-            _chunkSize = chunkSize;
-            _format = format;
-            
-        }
-        public void addSubchunk1(int subchunk1Id, int subchunk1Size, int audioFormat, short numChannels, int sampleRate, int byteRate, short blockAlign, short bitsPerSample)
-        {
-            _subchunk1Id = subchunk1Id;
-            _subchunk1Size = subchunk1Size;
-            _audioFormat = audioFormat;
             _numChannels = numChannels;
-            _sampleRate = sampleRate;
-            _byteRate = byteRate;
-            _blockAlign = blockAlign;
-            _bitsPerSample = bitsPerSample;
-        }
-        public void addSubchunk2(int subchunk2Id, int subchunk2Size, byte[] data)
-        {
-            _subchunk2Id = subchunk2Id;
-            _subchunk2Size = subchunk2Size;
+            _bytePerSample = bitsPerSample / 8;
             _data = data;
+            _scale = scale;
         }
 
-        public void Write()
+        public byte[] ScaleTrack()
         {
-            using (BinaryWriter bw = new BinaryWriter(new FileStream(@"../../../../Audio/6.wav", FileMode.OpenOrCreate)))
+            channels = new byte[_numChannels][];
+            changedCh = new byte[_numChannels][];
+            int oneChLen = _data.Length / _numChannels;
+
+
+            for (int i = 0; i < _numChannels; i++)
             {
-                bw.Write(_chunkID);
-                 _chunkSize = 4 + (8 + _subchunk1Size) + (8 + _subchunk2Size * 2);
-                bw.Write(_chunkSize);
-                // bw.Write(_format);
-                // Console.WriteLine(_numChannels);
+                channels[i] = new byte[oneChLen];
+                changedCh[i] = new byte[oneChLen * _scale];
             }
+
+            for (int i = 0; i < _data.Length / _bytePerSample; i++)
+            {
+                for (int j = 0; j < _bytePerSample; j++)
+                {
+                    channels[i % _numChannels][i / _numChannels + j] = _data[i * _bytePerSample + j];
+                }
+            }
+
+            double step = (double) 1 / _scale;
+            for (double i = 0; i < oneChLen / _bytePerSample; i += step)
+            {
+                if (i % 1 == 0)
+                {
+                    for (int j = 0; j < _numChannels; j++)
+                    {
+                        for (int k = 0; k < _bytePerSample; k++)
+                        {
+                            changedCh[j][Convert.ToInt32(i / step) + k] = channels[j][Convert.ToInt32(i) + k];
+                        }
+                    }
+                }
+                else
+                {
+                    for (int j = 0; j < _numChannels; j++)
+                    {
+                        for (int k = 0; k < _bytePerSample; k++)
+                        {
+                            changedCh[j][Convert.ToInt32(i / step) + k] = Interpolate(i, j, k);
+                        }
+                    }
+                }
+            }
+
+            byte[] newData = new byte[oneChLen * _scale * _numChannels];
+            for (int i = 0; i < oneChLen * _scale / _bytePerSample; i++)
+            {
+                for (int j = 0; j < _numChannels; j++)
+                {
+                    for (int k = 0; k < _bytePerSample; k++)
+                    {
+                        newData[i * _numChannels * _bytePerSample + j * _numChannels + k] =
+                            changedCh[j][i * _bytePerSample + k];
+                    }
+                }
+            }
+
+
+            return newData;
+        }
+
+        private byte Interpolate(double x, int channel, int currByte)
+        {
+            int x0 = Convert.ToInt32(Math.Floor(x));
+            int x1 = Convert.ToInt32(Math.Ceiling(x));
+            double y0 = Convert.ToDouble(channels[channel][x0 * _bytePerSample + currByte]);
+            double y1 = Convert.ToDouble(channels[channel][x1 * _bytePerSample + currByte]);
+            double result = y0 + (double) ((x - x0) * (y1 - y0)) / (x1 - x0);
+            return Convert.ToByte(result);
         }
     }
 }
