@@ -10,10 +10,9 @@ namespace WaveEditor.ConsoleApp
             Console.WriteLine("Hello World!");
             string input = @"../../../../Audio/5.wav";
             string output = @"../../../../Audio/6.wav";
-            AudioProcessor a1 = new AudioProcessor();
-            ReadWriteBinary s = new ReadWriteBinary(a1, input, output);
-            s.Read();
-            a1.Write();
+            int scale = 1;
+            ReadWriteBinary s = new ReadWriteBinary(scale,input, output);
+            
         }
     }
 }
