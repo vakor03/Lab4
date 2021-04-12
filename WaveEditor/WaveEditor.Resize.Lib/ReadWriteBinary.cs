@@ -40,7 +40,8 @@ namespace WaveEditor.Resize.Lib
                 Int32 subchunk2Size = binaryReader.ReadInt32();
                 byte[] data = binaryReader.ReadBytes((int) binaryReader.BaseStream.Length);
                 
-                
+                AudioProcessor audioProcessor = new AudioProcessor(numChannels, bitsPerSample, data, _scale);
+                byte[] newData = audioProcessor.ScaleTrack();
 
             }
         }
