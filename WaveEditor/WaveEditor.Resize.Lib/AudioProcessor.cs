@@ -87,8 +87,8 @@ namespace WaveEditor.Resize.Lib
         {
             int x0 = Convert.ToInt32(Math.Floor(x));
             int x1 = Convert.ToInt32(Math.Ceiling(x));
-            byte y0 = channels[channel][x0 * _bytePerSample + currByte];
-            double y1 = channels[channel][x1 * _bytePerSample + currByte];
+            double y0 = Convert.ToDouble(channels[channel][x0 * _bytePerSample + currByte]);
+            double y1 = Convert.ToDouble(channels[channel][x1 * _bytePerSample + currByte]);
             double result = y0 + (double) ((x - x0) * (y1 - y0)) / (x1 - x0);
             return Convert.ToByte(result);
         }
