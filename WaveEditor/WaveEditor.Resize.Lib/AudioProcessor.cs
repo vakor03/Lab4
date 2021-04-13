@@ -8,11 +8,11 @@ namespace WaveEditor.Resize.Lib
         private Int16 _numChannels;
         private int _bytePerSample;
         private byte[] _data;
-        private int _scale;
+        private double _scale;
         private byte[][] channels;
         private byte[][] changedCh;
 
-        public AudioProcessor(short numChannels, short bitsPerSample, byte[] data, int scale)
+        public AudioProcessor(short numChannels, short bitsPerSample, byte[] data, double scale)
         {
             _numChannels = numChannels;
             _bytePerSample = bitsPerSample / 8;
@@ -30,19 +30,22 @@ namespace WaveEditor.Resize.Lib
             for (int i = 0; i < _numChannels; i++)
             {
                 channels[i] = new byte[oneChLen];
-                changedCh[i] = new byte[oneChLen * _scale];
+                changedCh[i] = new byte[Convert.ToInt32(oneChLen * _scale)];
             }
 
-            for (int i = 0; i < _data.Length / _bytePerSample; i++)
+            for (int i = 0; i < _data.Length / _bytePerSample / _numChannels; i++)
             {
-                for (int j = 0; j < _bytePerSample; j++)
+                for (int k = 0; k < _numChannels; k++)
                 {
-                    channels[i % _numChannels][i / _numChannels + j] = _data[i * _bytePerSample + j];
+                    for (int j = 0; j < _bytePerSample; j++)
+                    {
+                        channels[k][i*_bytePerSample + j] = _data[i*_numChannels*_bytePerSample+k*_bytePerSample+j];
+                    }
                 }
             }
 
-            double step = (double) 1 / _scale;
-            for (double i = 0; i < oneChLen / _bytePerSample; i += step)
+            double step = 1 / _scale;
+            for (double i = 0; i < oneChLen / _bytePerSample / _numChannels; i += step)
             {
                 if (i % 1 == 0)
                 {
@@ -50,7 +53,7 @@ namespace WaveEditor.Resize.Lib
                     {
                         for (int k = 0; k < _bytePerSample; k++)
                         {
-                            changedCh[j][Convert.ToInt32(i / step) + k] = channels[j][Convert.ToInt32(i) + k];
+                            changedCh[j][Convert.ToInt32(i/step)*_bytePerSample + k] = channels[j][Convert.ToInt32(i)*_bytePerSample + k];
                         }
                     }
                 }
@@ -60,13 +63,13 @@ namespace WaveEditor.Resize.Lib
                     {
                         for (int k = 0; k < _bytePerSample; k++)
                         {
-                            changedCh[j][Convert.ToInt32(i / step) + k] = Interpolate(i, j, k);
+                            changedCh[j][Convert.ToInt32(i / step)*_bytePerSample + k] = Interpolate(i, j, k);
                         }
                     }
                 }
             }
 
-            byte[] newData = new byte[oneChLen * _scale * _numChannels];
+            byte[] newData = new byte[Convert.ToInt32(oneChLen * _scale * _numChannels)];
             for (int i = 0; i < oneChLen * _scale / _bytePerSample; i++)
             {
                 for (int j = 0; j < _numChannels; j++)
@@ -89,7 +92,7 @@ namespace WaveEditor.Resize.Lib
             int x1 = Convert.ToInt32(Math.Ceiling(x));
             double y0 = Convert.ToDouble(channels[channel][x0 * _bytePerSample + currByte]);
             double y1 = Convert.ToDouble(channels[channel][x1 * _bytePerSample + currByte]);
-            double result = y0 + (double) ((x - x0) * (y1 - y0)) / (x1 - x0);
+            double result = y0 + (x - x0) * ((y1 - y0) / (x1 - x0));
             return Convert.ToByte(result);
         }
     }
