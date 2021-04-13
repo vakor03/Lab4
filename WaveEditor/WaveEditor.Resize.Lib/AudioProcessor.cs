@@ -8,11 +8,11 @@ namespace WaveEditor.Resize.Lib
         private Int16 _numChannels;
         private int _bytePerSample;
         private byte[] _data;
-        private int _scale;
+        private double _scale;
         private byte[][] channels;
         private byte[][] changedCh;
 
-        public AudioProcessor(short numChannels, short bitsPerSample, byte[] data, int scale)
+        public AudioProcessor(short numChannels, short bitsPerSample, byte[] data, double scale)
         {
             _numChannels = numChannels;
             _bytePerSample = bitsPerSample / 8;
@@ -30,7 +30,7 @@ namespace WaveEditor.Resize.Lib
             for (int i = 0; i < _numChannels; i++)
             {
                 channels[i] = new byte[oneChLen];
-                changedCh[i] = new byte[oneChLen * _scale];
+                changedCh[i] = new byte[Convert.ToInt32(oneChLen * _scale)];
             }
 
             for (int i = 0; i < _data.Length / _bytePerSample / _numChannels; i++)
@@ -44,7 +44,7 @@ namespace WaveEditor.Resize.Lib
                 }
             }
 
-            double step = (double) 1 / _scale;
+            double step = 1 / _scale;
             for (double i = 0; i < oneChLen / _bytePerSample; i += step)
             {
                 if (i % 1 == 0)
@@ -53,7 +53,7 @@ namespace WaveEditor.Resize.Lib
                     {
                         for (int k = 0; k < _bytePerSample; k++)
                         {
-                            changedCh[j][Convert.ToInt32(i / step) + k] = channels[j][Convert.ToInt32(i) + k];
+                            changedCh[j][Convert.ToInt32(i/step)*_bytePerSample + k] = channels[j][Convert.ToInt32(i)*_bytePerSample + k];
                         }
                     }
                 }
@@ -63,13 +63,13 @@ namespace WaveEditor.Resize.Lib
                     {
                         for (int k = 0; k < _bytePerSample; k++)
                         {
-                            changedCh[j][Convert.ToInt32(i / step) + k] = Interpolate(i, j, k);
+                            changedCh[j][Convert.ToInt32(i / step)*_bytePerSample + k] = Interpolate(i, j, k);
                         }
                     }
                 }
             }
 
-            byte[] newData = new byte[oneChLen * _scale * _numChannels];
+            byte[] newData = new byte[Convert.ToInt32(oneChLen * _scale * _numChannels)];
             for (int i = 0; i < oneChLen * _scale / _bytePerSample; i++)
             {
                 for (int j = 0; j < _numChannels; j++)
