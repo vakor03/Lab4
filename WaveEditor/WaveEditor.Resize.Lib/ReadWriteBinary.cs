@@ -20,7 +20,7 @@ namespace WaveEditor.Resize.Lib
         //SUBCHUNK1 
         private Int32 _subchunk1Id;
         private Int32 _subchunk1Size;
-        private Int32 _audioFormat;
+        private Int16 _audioFormat;
         private Int16 _numChannels;
 
         public short NumChannels
