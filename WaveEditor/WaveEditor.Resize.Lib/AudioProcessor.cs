@@ -45,7 +45,7 @@ namespace WaveEditor.Resize.Lib
             }
 
             double step = 1 / _scale;
-            for (double i = 0; i < oneChLen / _bytePerSample; i += step)
+            for (double i = 0; i < oneChLen / _bytePerSample / _numChannels; i += step)
             {
                 if (i % 1 == 0)
                 {
