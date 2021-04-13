@@ -6,11 +6,11 @@ namespace WaveEditor.Resize.Lib
 {
     public class ReadWriteBinary
     {
-        private int _scale;
+        private double _scale;
         private string _inputPath;
         private string _outputPath;
         
-        public int Scale => _scale;
+        public double Scale => _scale;
 
         // RIFFHEADER
         private Int32 _chunkId;
@@ -51,7 +51,7 @@ namespace WaveEditor.Resize.Lib
             set => _data = value;
         }
         
-        public ReadWriteBinary(int scale, string inputPath, string outputPath)
+        public ReadWriteBinary(double scale, string inputPath, string outputPath)
         {
             _scale = scale;
             _inputPath = inputPath;
