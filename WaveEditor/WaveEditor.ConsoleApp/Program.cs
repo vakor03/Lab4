@@ -9,7 +9,7 @@ namespace WaveEditor.ConsoleApp
         static void Main(string[] args)
         {
             Console.WriteLine(1.2%1);
-            string input = @"../../../../Audio/5.wav";
+            string input = @"../../../../Audio/test.wav";
             string output = @"../../../../Audio/6.wav";
             double scale = 2;
             ReadWriteBinary s = new ReadWriteBinary(scale,input, output);
