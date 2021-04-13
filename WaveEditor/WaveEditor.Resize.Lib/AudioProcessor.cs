@@ -33,11 +33,14 @@ namespace WaveEditor.Resize.Lib
                 changedCh[i] = new byte[oneChLen * _scale];
             }
 
-            for (int i = 0; i < _data.Length / _bytePerSample; i++)
+            for (int i = 0; i < _data.Length / _bytePerSample / _numChannels; i++)
             {
-                for (int j = 0; j < _bytePerSample; j++)
+                for (int k = 0; k < _numChannels; k++)
                 {
-                    channels[i % _numChannels][i / _numChannels + j] = _data[i * _bytePerSample + j];
+                    for (int j = 0; j < _bytePerSample; j++)
+                    {
+                        channels[k][i*_bytePerSample + j] = _data[i*_numChannels*_bytePerSample+k*_bytePerSample+j];
+                    }
                 }
             }
 
@@ -89,7 +92,7 @@ namespace WaveEditor.Resize.Lib
             int x1 = Convert.ToInt32(Math.Ceiling(x));
             double y0 = Convert.ToDouble(channels[channel][x0 * _bytePerSample + currByte]);
             double y1 = Convert.ToDouble(channels[channel][x1 * _bytePerSample + currByte]);
-            double result = y0 + (double) ((x - x0) * (y1 - y0)) / (x1 - x0);
+            double result = y0 + (x - x0) * ((y1 - y0) / (x1 - x0));
             return Convert.ToByte(result);
         }
     }
