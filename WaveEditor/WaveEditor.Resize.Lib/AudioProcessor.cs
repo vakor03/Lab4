@@ -1,17 +1,15 @@
 ﻿using System;
-using System.IO;
 
 namespace WaveEditor.Resize.Lib
 {
     public class AudioProcessor
     {
-        private Int16 _numChannels;
-        private int _bytePerSample;
-        private byte[] _data;
-        private double _scale;
-        private byte[][] channels;
-        private byte[][] changedCh;
-
+        private readonly Int16 _numChannels;
+        private readonly int _bytePerSample;
+        private readonly byte[] _data;
+        private readonly double _scale;
+        private byte[][] _channels;
+        private byte[][] _changedCh;
         public AudioProcessor(short numChannels, short bitsPerSample, byte[] data, double scale)
         {
             _numChannels = numChannels;
@@ -22,6 +20,7 @@ namespace WaveEditor.Resize.Lib
 
         public byte[] ScaleTrack()
         {
+            Console.Write("Scaling sound file...");
             DataToChannels();
 
             for (int i = 0; i < _numChannels; i++)
@@ -29,33 +28,33 @@ namespace WaveEditor.Resize.Lib
                 ScaleChannel(i);
             }
 
-            byte[] newData = new byte[changedCh[0].Length * _numChannels];
-            for (int i = 0; i < changedCh[0].Length / _bytePerSample; i++)
+            byte[] newData = new byte[_changedCh[0].Length * _numChannels];
+            for (int i = 0; i < _changedCh[0].Length / _bytePerSample; i++)
             {
                 for (int j = 0; j < _numChannels; j++)
                 {
                     for (int k = 0; k < _bytePerSample; k++)
                     {
                         newData[i * _numChannels * _bytePerSample + j * _numChannels + k] =
-                            changedCh[j][i * _bytePerSample + k];
+                            _changedCh[j][i * _bytePerSample + k];
                     }
                 }
             }
 
-
+            Console.WriteLine("Done!");
             return newData;
         }
 
         private void DataToChannels()
         {
-            channels = new byte[_numChannels][];
-            changedCh = new byte[_numChannels][];
+            _channels = new byte[_numChannels][];
+            _changedCh = new byte[_numChannels][];
             int oneChLen = _data.Length / _numChannels;
 
 
             for (int i = 0; i < _numChannels; i++)
             {
-                channels[i] = new byte[oneChLen];
+                _channels[i] = new byte[oneChLen];
             }
 
             for (int i = 0; i < _data.Length / _bytePerSample / _numChannels; i++)
@@ -64,20 +63,21 @@ namespace WaveEditor.Resize.Lib
                 {
                     for (int j = 0; j < _bytePerSample; j++)
                     {
-                        channels[k][i * _bytePerSample + j] =
+                        _channels[k][i * _bytePerSample + j] =
                             _data[i * _numChannels * _bytePerSample + k * _bytePerSample + j];
                     }
                 }
             }
         }
+
         private void ScaleChannel(int channel)
         {
-            int inputSamples = channels[channel].Length / _bytePerSample;
+            int inputSamples = _channels[channel].Length / _bytePerSample;
             int outputSamples = (int) (_scale * inputSamples);
 
-            changedCh[channel] = new byte[outputSamples * _bytePerSample];
+            _changedCh[channel] = new byte[outputSamples * _bytePerSample];
 
-            for (int i = 0; i < changedCh[channel].Length - _bytePerSample; i += _bytePerSample)
+            for (int i = 0; i < _changedCh[channel].Length - _bytePerSample; i += _bytePerSample)
             {
                 double placeInInput = Interpolate(0, inputSamples - 1, 0, outputSamples - 1, i / _bytePerSample);
 
@@ -89,11 +89,12 @@ namespace WaveEditor.Resize.Lib
                 for (int k = 0; k < _bytePerSample; k++)
                 {
                     currentSample[k] = Convert.ToByte(Interpolate(
-                        channels[channel][x0 * _bytePerSample + k],
-                        channels[channel][x0 * _bytePerSample + k], x0, x1,
+                        _channels[channel][x0 * _bytePerSample + k],
+                        _channels[channel][x0 * _bytePerSample + k], x0, x1,
                         placeInInput));
                 }
-                Array.Copy(currentSample, 0, changedCh[channel], i, _bytePerSample);
+
+                Array.Copy(currentSample, 0, _changedCh[channel], i, _bytePerSample);
             }
         }
 

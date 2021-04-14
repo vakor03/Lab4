@@ -86,6 +86,7 @@ namespace WaveEditor.Resize.Lib
 
         public void Write(byte[] newData)
         {
+            Console.WriteLine($"Written result to {_outputPath}");
             using (BinaryWriter binaryWriter = new BinaryWriter(new FileStream(_outputPath, FileMode.Create)))
             {
                 _subchunk2Size = newData.Length * _numChannels * _bitsPerSample / 8;

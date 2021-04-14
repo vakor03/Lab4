@@ -9,9 +9,9 @@ namespace WaveEditor.ConsoleApp
         static void Main(string[] args)
         {
             Console.WriteLine(1.2%1);
-            string input = @"../../../../Audio/test.wav";
-            string output = @"../../../../Audio/6.wav";
-            double scale = 2;
+            string input = @"C:\Users\Вакор\Desktop\Lab4\WaveEditor\Audio\" +args[0];
+            string output = @"C:\Users\Вакор\Desktop\Lab4\WaveEditor\Audio\" +args[1];
+            double scale = Double.Parse(args[2]);
             ReadWriteBinary s = new ReadWriteBinary(scale,input, output);
             s.Read();
             AudioProcessor audioProcessor = new AudioProcessor(s.NumChannels, s.BitsPerSample, s.Data, s.Scale);
