@@ -4,13 +4,13 @@ namespace WaveEditor.Resize.Lib
 {
     public class AudioProcessor
     {
-        private readonly Int16 _numChannels;
+        private readonly UInt16 _numChannels;
         private readonly int _bytePerSample;
         private readonly byte[] _data;
         private readonly double _scale;
         private byte[][] _channels;
         private byte[][] _changedCh;
-        public AudioProcessor(short numChannels, short bitsPerSample, byte[] data, double scale)
+        public AudioProcessor(UInt16 numChannels, UInt16 bitsPerSample, byte[] data, double scale)
         {
             _numChannels = numChannels;
             _bytePerSample = bitsPerSample / 8;
@@ -100,7 +100,7 @@ namespace WaveEditor.Resize.Lib
 
         private double Interpolate(double y0, double y1, double x0, double x1, double x)
         {
-            return (int) (y0 + (y1 - y0) * (x - x0) / (x1 - x0));
+            return (int)(y0 + (y1 - y0) * (x - x0) / (x1 - x0));
         }
     }
 }

@@ -13,36 +13,36 @@ namespace WaveEditor.Resize.Lib
         public double Scale => _scale;
 
         // RIFFHEADER
-        private Int32 _chunkId;
-        private Int32 _chunkSize;
-        private Int32 _format;
+        private UInt32 _chunkId;
+        private UInt32 _chunkSize;
+        private UInt32 _format;
 
         //SUBCHUNK1 
-        private Int32 _subchunk1Id;
-        private Int32 _subchunk1Size;
-        private Int16 _audioFormat;
-        private Int16 _numChannels;
+        private UInt32 _subchunk1Id;
+        private UInt32 _subchunk1Size;
+        private UInt16 _audioFormat;
+        private UInt16 _numChannels;
 
-        public short NumChannels
+        public UInt16 NumChannels
         {
             get => _numChannels;
             set => _numChannels = value;
         }
 
-        private Int32 _sampleRate;
-        private Int32 _byteRate;
-        private Int16 _blockAlign;
-        private Int16 _bitsPerSample;
+        private UInt32 _sampleRate;
+        private UInt32 _byteRate;
+        private UInt16 _blockAlign;
+        private UInt16 _bitsPerSample;
 
-        public short BitsPerSample
+        public UInt16 BitsPerSample
         {
             get => _bitsPerSample;
             set => _bitsPerSample = value;
         }
 
         //SUBCHUNK2
-        private Int32 _subchunk2Id;
-        private Int32 _subchunk2Size;
+        private UInt32 _subchunk2Id;
+        private UInt32 _subchunk2Size;
         private byte[] _data;
 
         public byte[] Data
@@ -63,23 +63,23 @@ namespace WaveEditor.Resize.Lib
             using (BinaryReader binaryReader = new BinaryReader(new FileStream(_inputPath, FileMode.Open, FileAccess.Read)))
             {
                 // RIFFHEADER
-                _chunkId = binaryReader.ReadInt32();
-                _chunkSize = binaryReader.ReadInt32();
-                _format = binaryReader.ReadInt32();
+                _chunkId = binaryReader.ReadUInt32();
+                _chunkSize = binaryReader.ReadUInt32();
+                _format = binaryReader.ReadUInt32();
 
                 //SUBCHUNK1 
-                _subchunk1Id = binaryReader.ReadInt32();
-                _subchunk1Size = binaryReader.ReadInt32();
-                _audioFormat = binaryReader.ReadInt16();
-                _numChannels = binaryReader.ReadInt16();
-                _sampleRate = binaryReader.ReadInt32();
-                _byteRate = binaryReader.ReadInt32();
-                _blockAlign = binaryReader.ReadInt16();
-                _bitsPerSample = binaryReader.ReadInt16();
+                _subchunk1Id = binaryReader.ReadUInt32();
+                _subchunk1Size = binaryReader.ReadUInt32();
+                _audioFormat = binaryReader.ReadUInt16();
+                _numChannels = binaryReader.ReadUInt16();
+                _sampleRate = binaryReader.ReadUInt32();
+                _byteRate = binaryReader.ReadUInt32();
+                _blockAlign = binaryReader.ReadUInt16();
+                _bitsPerSample = binaryReader.ReadUInt16();
 
                 //SUBCHUNK2
-                _subchunk2Id = binaryReader.ReadInt32();
-                _subchunk2Size = binaryReader.ReadInt32();
+                _subchunk2Id = binaryReader.ReadUInt32();
+                _subchunk2Size = binaryReader.ReadUInt32();
                 _data = binaryReader.ReadBytes((int) binaryReader.BaseStream.Length);
             }
         }
@@ -89,7 +89,7 @@ namespace WaveEditor.Resize.Lib
             Console.WriteLine($"Written result to {_outputPath}");
             using (BinaryWriter binaryWriter = new BinaryWriter(new FileStream(_outputPath, FileMode.Create)))
             {
-                _subchunk2Size = newData.Length * _numChannels * _bitsPerSample / 8;
+                _subchunk2Size = (uint)(newData.Length * _numChannels * _bitsPerSample / 8);
                 _chunkSize = 4 + (8 + _subchunk1Size) + (8 + _subchunk2Size);
                 binaryWriter.Write(_chunkId);
                 binaryWriter.Write(_chunkSize);
