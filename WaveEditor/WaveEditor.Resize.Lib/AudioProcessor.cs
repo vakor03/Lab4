@@ -90,7 +90,7 @@ namespace WaveEditor.Resize.Lib
                 {
                     currentSample[k] = Convert.ToByte(Interpolate(
                         _channels[channel][x0 * _bytePerSample + k],
-                        _channels[channel][x0 * _bytePerSample + k], x0, x1,
+                        _channels[channel][x1 * _bytePerSample + k], x0, x1,
                         placeInInput));
                 }
 
@@ -100,7 +100,7 @@ namespace WaveEditor.Resize.Lib
 
         private double Interpolate(double y0, double y1, double x0, double x1, double x)
         {
-            return (y0 + (y1 - y0) * (x - x0) / (x1 - x0));
+            return (int)(y0 + (y1 - y0) * (x - x0) / (x1 - x0));
         }
     }
 }
