@@ -9,6 +9,7 @@ namespace WaveEditor.Resize.Lib
         private double _scale;
         private string _inputPath;
         private string _outputPath;
+        private double _loop;
         
         public double Scale => _scale;
 
@@ -51,11 +52,12 @@ namespace WaveEditor.Resize.Lib
             set => _data = value;
         }
         
-        public ReadWriteBinary(double scale, string inputPath, string outputPath)
+        public ReadWriteBinary(double scale, string inputPath, string outputPath, double loop)
         {
             _scale = scale;
             _inputPath = inputPath;
             _outputPath = outputPath;
+            _loop = loop;
         }
 
         public void Read()

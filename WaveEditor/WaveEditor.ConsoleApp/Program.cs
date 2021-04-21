@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using WaveEditor.Resize.Lib;
 
 namespace WaveEditor.ConsoleApp
@@ -8,13 +7,13 @@ namespace WaveEditor.ConsoleApp
     {
         static void Main(string[] args)
         {
-            Console.WriteLine(1.2%1);
             string input = @"..\..\..\..\Audio\" +args[0];
             string output = @"..\..\..\..\Audio\" +args[1];
             double scale = Double.Parse(args[2]);
-            ReadWriteBinary s = new ReadWriteBinary(scale,input, output);
+            double loop = Double.Parse(args[3]);
+            ReadWriteBinary s = new ReadWriteBinary(scale,input, output, loop);
             s.Read();
-            AudioProcessor audioProcessor = new AudioProcessor(s.NumChannels, s.BitsPerSample, s.Data, s.Scale);
+            AudioProcessor audioProcessor = new AudioProcessor(s.NumChannels, s.BitsPerSample, s.Data, s.Scale, loop);
             byte[] newData = audioProcessor.ScaleTrack();
             s.Write(newData);
         }

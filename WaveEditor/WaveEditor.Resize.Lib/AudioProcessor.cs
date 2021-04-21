@@ -10,12 +10,14 @@ namespace WaveEditor.Resize.Lib
         private readonly double _scale;
         private byte[][] _channels;
         private byte[][] _changedCh;
-        public AudioProcessor(UInt16 numChannels, UInt16 bitsPerSample, byte[] data, double scale)
+        private double _loop;
+        public AudioProcessor(UInt16 numChannels, UInt16 bitsPerSample, byte[] data, double scale, double loop)
         {
             _numChannels = numChannels;
             _bytePerSample = bitsPerSample / 8;
             _data = data;
             _scale = scale;
+            _loop = loop;
         }
 
         public byte[] ScaleTrack()
@@ -27,7 +29,7 @@ namespace WaveEditor.Resize.Lib
             {
                 ScaleChannel(i);
             }
-
+            LoopTrack();
             byte[] newData = new byte[_changedCh[0].Length * _numChannels];
             for (int i = 0; i < _changedCh[0].Length / _bytePerSample; i++)
             {
@@ -44,6 +46,22 @@ namespace WaveEditor.Resize.Lib
             Console.WriteLine("Done!");
             return newData;
         }
+
+        private void LoopTrack()
+        {
+            for (int i = 0; i < _changedCh.Length; i++)
+            {
+                long width = (int)(_changedCh[i].Length/_bytePerSample*_loop)*_bytePerSample ;
+                byte[] channel = new byte[(int)(_changedCh[i].Length/_bytePerSample*(_loop))*_bytePerSample];
+                for (int j = 0; j < Math.Floor(_loop); j++)
+                {
+                    Array.Copy(_changedCh[i],0, channel, j*_changedCh[i].Length, _changedCh[i].Length);
+                }
+               Array.Copy(_changedCh[i],0,channel, (int)Math.Floor(_loop)*_changedCh[i].Length ,(int)(_changedCh[i].Length/_bytePerSample*(_loop%1))*_bytePerSample);
+                _changedCh[i] = (channel);
+            }
+        }
+        
 
         private void DataToChannels()
         {
